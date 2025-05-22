@@ -41,25 +41,25 @@ export async function fetchRevenue() {
   }
 }
 
-// export async function fetchLatestInvoices() {
-//   try {
-//     const data = await query<LatestInvoiceRaw[]>(`
-//       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-//       FROM invoices
-//       JOIN customers ON invoices.customer_id = customers.id
-//       ORDER BY invoices.date DESC
-//       LIMIT 5
-//     `);
+export async function fetchLatestInvoices() {
+  try {
+    const data = await query<LatestInvoiceRaw[]>(`
+      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
+      FROM invoices
+      JOIN customers ON invoices.customer_id = customers.id
+      ORDER BY invoices.date DESC
+      LIMIT 5
+    `);
 
-//     return data.map((invoice) => ({
-//       ...invoice,
-//       amount: formatCurrency(invoice.amount),
-//     }));
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch the latest invoices.");
-//   }
-// }
+    return data.map((invoice) => ({
+      ...invoice,
+      amount: formatCurrency(invoice.amount),
+    }));
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch the latest invoices.");
+  }
+}
 
 // export async function fetchCardData() {
 //   try {
