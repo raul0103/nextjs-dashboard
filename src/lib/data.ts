@@ -152,6 +152,18 @@ export async function fetchFilteredInvoices(
   }
 }
 
+export async function fetchCreateInvoice(
+  customerId: string,
+  amount: number,
+  status: "pending" | "paid",
+  date: string
+) {
+  await query(
+    "INSERT INTO invoices (customer_id, amount, status, date) VALUES (?, ?, ?, ?)",
+    [customerId, amount, status, date]
+  );
+}
+
 export async function fetchInvoicesPages(queryStr: string) {
   const likeQuery = `%${queryStr.toLowerCase()}%`;
   try {
@@ -206,22 +218,22 @@ export async function fetchInvoicesPages(queryStr: string) {
 //   }
 // }
 
-// export async function fetchCustomers() {
-//   try {
-//     const customers = await query<CustomerField[]>(`
-//       SELECT
-//         id,
-//         name
-//       FROM customers
-//       ORDER BY name ASC
-//     `);
+export async function fetchCustomers() {
+  try {
+    const customers = await query<CustomerField[]>(`
+      SELECT
+        id,
+        name
+      FROM customers
+      ORDER BY name ASC
+    `);
 
-//     return customers;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch all customers.");
-//   }
-// }
+    return customers;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch all customers.");
+  }
+}
 
 // export async function fetchFilteredCustomers(queryStr: string) {
 //   const likeQuery = `%${queryStr.toLowerCase()}%`;
