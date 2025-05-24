@@ -1,9 +1,10 @@
 import mysql from "mysql2/promise";
 import {
   CustomerField,
-  CustomersTableType,
+  // CustomersTableType,
   InvoiceForm,
   InvoicesTable,
+  LatestInvoice,
   LatestInvoiceRaw,
   Revenue,
 } from "./definitions";
@@ -24,7 +25,10 @@ async function getConnection() {
   return connection;
 }
 
-export async function query<T>(sql: string, params: any[] = []): Promise<T> {
+export async function query<T>(
+  sql: string,
+  params: (string | number | boolean | null)[] = []
+): Promise<T> {
   const conn = await getConnection();
   const [rows] = await conn.execute(sql, params);
   return rows as T;
@@ -43,7 +47,7 @@ export async function fetchRevenue() {
   }
 }
 
-export async function fetchLatestInvoices() {
+export async function fetchLatestInvoices(): Promise<LatestInvoice[]> {
   try {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -58,7 +62,7 @@ export async function fetchLatestInvoices() {
     return data.map((invoice) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
-    }));
+    })) as LatestInvoice[];
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch the latest invoices.");

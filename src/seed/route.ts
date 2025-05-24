@@ -104,8 +104,10 @@ export async function GET() {
     await seedInvoices();
 
     return Response.json({ message: "Database seeded successfully" });
-  } catch (error: any) {
-    return Response.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
   } finally {
     await connection.end();
   }

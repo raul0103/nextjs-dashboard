@@ -34,10 +34,7 @@ export function UpdateInvoice({ id }: { id: string }) {
 }
 
 export function DeleteInvoice({ id }: { id: string }) {
-  const [actionState, formAction, isPending] = useActionState(
-    deleteInvoice,
-    null
-  );
+  const [, formAction, isPending] = useActionState(deleteInvoice, null);
   return (
     <>
       <form action={formAction}>
