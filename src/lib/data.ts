@@ -163,7 +163,17 @@ export async function fetchCreateInvoice(
     [customerId, amount, status, date]
   );
 }
-
+export async function fetchUpdateInvoice(
+  customerId: string,
+  amount: number,
+  status: "pending" | "paid",
+  id: string
+) {
+  await query(
+    "UPDATE invoices SET customer_id = ?, amount = ?, status = ? WHERE id = ?",
+    [customerId, amount, status, id]
+  );
+}
 export async function fetchInvoicesPages(queryStr: string) {
   const likeQuery = `%${queryStr.toLowerCase()}%`;
   try {
@@ -190,33 +200,33 @@ export async function fetchInvoicesPages(queryStr: string) {
   }
 }
 
-// export async function fetchInvoiceById(id: string) {
-//   try {
-//     const data = await query<InvoiceForm[]>(
-//       `
-//       SELECT
-//         invoices.id,
-//         invoices.customer_id,
-//         invoices.amount,
-//         invoices.status
-//       FROM invoices
-//       WHERE invoices.id = ?
-//     `,
-//       [id]
-//     );
+export async function fetchInvoiceById(id: string) {
+  try {
+    const data = await query<InvoiceForm[]>(
+      `
+      SELECT
+        invoices.id,
+        invoices.customer_id,
+        invoices.amount,
+        invoices.status
+      FROM invoices
+      WHERE invoices.id = ?
+    `,
+      [id]
+    );
 
-//     if (data.length === 0) return null;
+    if (data.length === 0) return null;
 
-//     const invoice = data[0];
-//     return {
-//       ...invoice,
-//       amount: invoice.amount / 100, // если сумма в центах
-//     };
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch invoice.");
-//   }
-// }
+    const invoice = data[0];
+    return {
+      ...invoice,
+      amount: invoice.amount / 100, // если сумма в центах
+    };
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch invoice.");
+  }
+}
 
 export async function fetchCustomers() {
   try {
