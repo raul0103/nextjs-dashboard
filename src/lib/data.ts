@@ -106,80 +106,77 @@ export async function fetchCardData() {
   }
 }
 
-// const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 6;
 
-// export async function fetchFilteredInvoices(
-//   queryStr: string,
-//   currentPage: number
-// ) {
-//   const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-//   const likeQuery = `%${queryStr.toLowerCase()}%`;
+export async function fetchFilteredInvoices(
+  queryStr: string,
+  currentPage: number
+) {
+  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+  const likeQuery = `%${queryStr.toLowerCase()}%`;
 
-//   try {
-//     const invoices = await query<InvoicesTable[]>(
-//       `
-//       SELECT
-//         invoices.id,
-//         invoices.amount,
-//         invoices.date,
-//         invoices.status,
-//         customers.name,
-//         customers.email,
-//         customers.image_url
-//       FROM invoices
-//       JOIN customers ON invoices.customer_id = customers.id
-//       WHERE
-//         LOWER(customers.name) LIKE ? OR
-//         LOWER(customers.email) LIKE ? OR
-//         CAST(invoices.amount AS CHAR) LIKE ? OR
-//         CAST(invoices.date AS CHAR) LIKE ? OR
-//         LOWER(invoices.status) LIKE ?
-//       ORDER BY invoices.date DESC
-//       LIMIT ? OFFSET ?
-//     `,
-//       [
-//         likeQuery,
-//         likeQuery,
-//         likeQuery,
-//         likeQuery,
-//         likeQuery,
-//         ITEMS_PER_PAGE,
-//         offset,
-//       ]
-//     );
+  try {
+    const sql = `
+    SELECT
+      invoices.id,
+      invoices.amount,
+      invoices.date,
+      invoices.status,
+      customers.name,
+      customers.email,
+      customers.image_url
+    FROM invoices
+    JOIN customers ON invoices.customer_id = customers.id
+    WHERE
+      LOWER(customers.name) LIKE ? OR
+      LOWER(customers.email) LIKE ? OR
+      CAST(invoices.amount AS CHAR) LIKE ? OR
+      CAST(invoices.date AS CHAR) LIKE ? OR
+      LOWER(invoices.status) LIKE ?
+    ORDER BY invoices.date DESC
+    LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
+  `;
 
-//     return invoices;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch invoices.");
-//   }
-// }
+    const invoices = await query<InvoicesTable[]>(sql, [
+      likeQuery,
+      likeQuery,
+      likeQuery,
+      likeQuery,
+      likeQuery,
+    ]);
 
-// export async function fetchInvoicesPages(queryStr: string) {
-//   const likeQuery = `%${queryStr.toLowerCase()}%`;
-//   try {
-//     const data = await query<{ count: number }[]>(
-//       `
-//       SELECT COUNT(*) AS count
-//       FROM invoices
-//       JOIN customers ON invoices.customer_id = customers.id
-//       WHERE
-//         LOWER(customers.name) LIKE ? OR
-//         LOWER(customers.email) LIKE ? OR
-//         CAST(invoices.amount AS CHAR) LIKE ? OR
-//         CAST(invoices.date AS CHAR) LIKE ? OR
-//         LOWER(invoices.status) LIKE ?
-//     `,
-//       [likeQuery, likeQuery, likeQuery, likeQuery, likeQuery]
-//     );
+    return invoices;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch invoices.");
+  }
+}
 
-//     const totalPages = Math.ceil((data[0]?.count ?? 0) / ITEMS_PER_PAGE);
-//     return totalPages;
-//   } catch (error) {
-//     console.error("Database Error:", error);
-//     throw new Error("Failed to fetch total number of invoices.");
-//   }
-// }
+export async function fetchInvoicesPages(queryStr: string) {
+  const likeQuery = `%${queryStr.toLowerCase()}%`;
+  try {
+    const data = await query<{ count: number }[]>(
+      `
+      SELECT COUNT(*) AS count
+      FROM invoices
+      JOIN customers ON invoices.customer_id = customers.id
+      WHERE
+        LOWER(customers.name) LIKE ? OR
+        LOWER(customers.email) LIKE ? OR
+        CAST(invoices.amount AS CHAR) LIKE ? OR
+        CAST(invoices.date AS CHAR) LIKE ? OR
+        LOWER(invoices.status) LIKE ?
+    `,
+      [likeQuery, likeQuery, likeQuery, likeQuery, likeQuery]
+    );
+
+    const totalPages = Math.ceil((data[0]?.count ?? 0) / ITEMS_PER_PAGE);
+    return totalPages;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch total number of invoices.");
+  }
+}
 
 // export async function fetchInvoiceById(id: string) {
 //   try {
