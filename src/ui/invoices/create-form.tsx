@@ -10,7 +10,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Button } from "@/src/ui/button";
 import { createInvoice, State } from "@/src/lib/actions";
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
   const initialState: State = {

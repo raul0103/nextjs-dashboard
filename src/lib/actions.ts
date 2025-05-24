@@ -69,18 +69,36 @@ export async function createInvoice(prevState: State, formData: FormData) {
   redirect("/dashboard/invoices");
 }
 
-export async function updateInvoice(id: string, formData: FormData) {
-  const { customerId, amount, status } = InvoiceFields.parse({
+export async function updateInvoice(
+  id: string,
+  prevState: State,
+  formData: FormData
+) {
+  const formDataFields = {
     customerId: formData.get("customerId"),
     amount: formData.get("amount"),
     status: formData.get("status"),
-  });
+  };
+  const validatedFields = InvoiceFields.safeParse(formDataFields);
+
+  const new_state = {
+    errors: {},
+    message: "",
+    fields: formDataFields,
+  };
+
+  if (!validatedFields.success) {
+    new_state.errors = validatedFields.error.flatten().fieldErrors;
+    new_state.message = "Missing Fields. Failed to Create Invoice.";
+    return new_state;
+  }
+
+  const { customerId, amount, status } = validatedFields.data;
 
   await query(
     "UPDATE invoices SET customer_id = ?, amount = ?, status = ? WHERE id = ?",
     [customerId, amount, status, id]
   );
-
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
 }
