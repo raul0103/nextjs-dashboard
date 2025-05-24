@@ -1,9 +1,9 @@
 "use server";
+
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { fetchCreateInvoice } from "./data";
-import { fetchUpdateInvoice } from "./data";
+import { query } from "./data";
 
 const FormSchema = z.object({
   id: z.string(),
@@ -23,7 +23,10 @@ export async function createInvoice(formData: FormData) {
   });
   const date: string = new Date().toISOString().split("T")[0];
 
-  fetchCreateInvoice(customerId, amount, status, date);
+  await query(
+    "INSERT INTO invoices (customer_id, amount, status, date) VALUES (?, ?, ?, ?)",
+    [customerId, amount, status, date]
+  );
 
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
@@ -36,8 +39,24 @@ export async function updateInvoice(id: string, formData: FormData) {
     status: formData.get("status"),
   });
 
-  fetchUpdateInvoice(customerId, amount, status, id);
+  await query(
+    "UPDATE invoices SET customer_id = ?, amount = ?, status = ? WHERE id = ?",
+    [customerId, amount, status, id]
+  );
 
   revalidatePath("/dashboard/invoices");
   redirect("/dashboard/invoices");
+}
+
+export async function deleteInvoice(
+  prevState: boolean | null,
+  formData: FormData
+): Promise<boolean> {
+  const id = formData.get("id");
+
+  await query("DELETE FROM invoices WHERE id = ?", [id]);
+
+  revalidatePath("/dashboard/invoices");
+
+  return true;
 }

@@ -9,7 +9,7 @@ import {
 } from "./definitions";
 import { formatCurrency } from "./utils";
 
-let connection: mysql.Connection | null = null;
+let connection: mysql.Connection;
 
 async function getConnection() {
   if (connection) return connection;
@@ -24,7 +24,7 @@ async function getConnection() {
   return connection;
 }
 
-async function query<T>(sql: string, params: any[] = []): Promise<T> {
+export async function query<T>(sql: string, params: any[] = []): Promise<T> {
   const conn = await getConnection();
   const [rows] = await conn.execute(sql, params);
   return rows as T;
@@ -152,28 +152,6 @@ export async function fetchFilteredInvoices(
   }
 }
 
-export async function fetchCreateInvoice(
-  customerId: string,
-  amount: number,
-  status: "pending" | "paid",
-  date: string
-) {
-  await query(
-    "INSERT INTO invoices (customer_id, amount, status, date) VALUES (?, ?, ?, ?)",
-    [customerId, amount, status, date]
-  );
-}
-export async function fetchUpdateInvoice(
-  customerId: string,
-  amount: number,
-  status: "pending" | "paid",
-  id: string
-) {
-  await query(
-    "UPDATE invoices SET customer_id = ?, amount = ?, status = ? WHERE id = ?",
-    [customerId, amount, status, id]
-  );
-}
 export async function fetchInvoicesPages(queryStr: string) {
   const likeQuery = `%${queryStr.toLowerCase()}%`;
   try {

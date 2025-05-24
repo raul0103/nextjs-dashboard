@@ -2,9 +2,10 @@ import Form from "@/src/ui/invoices/edit-form";
 import Breadcrumbs from "@/src/ui/invoices/breadcrumbs";
 import { fetchInvoiceById, fetchCustomers } from "@/src/lib/data";
 
-export default async function Page(props: { params: Promise<{ id: string }> }) {
-  const params = await props.params;
-  const id = params.id;
+type Params = Promise<{ id: string }>;
+
+export default async function Page({ params }: { params: Params }) {
+  const { id } = await params;
   const [invoice, customers] = await Promise.all([
     fetchInvoiceById(id),
     fetchCustomers(),
